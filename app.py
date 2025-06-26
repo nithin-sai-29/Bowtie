@@ -149,9 +149,9 @@ if excel_file:
             df_info = pd.read_excel(excel_file, sheet_name="Info", header=None)
             hazard = str(df_info.iloc[0, 1]) if not pd.isna(df_info.iloc[0, 1]) else "Enter the hazard here"
             top_event = str(df_info.iloc[1, 1]) if not pd.isna(df_info.iloc[1, 1]) else "Enter the top event here"
-        except Exception:
-            hazard = st.text_input("Hazard", value="Enter the hazard here", key="excel_hazard")
-            top_event = st.text_input("Top Event", value="Enter the top event here", key="excel_top_event")
+            except Exception:
+                hazard = st.text_input("Hazard", value="Enter the hazard here", key="excel_hazard")
+                top_event = st.text_input("Top Event", value="Enter the top event here", key="excel_top_event")
 
 
         threats = [
