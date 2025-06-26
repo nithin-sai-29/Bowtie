@@ -136,7 +136,7 @@ with tab2:
     st.header(":material/analytics: Bowtie Data")
     st.divider()
     st.subheader(":material/upload: Import From Excel")
-    st.write("Alternatively, upload an Excel file with `Threats`, `Consequences`, and optionally `Info` sheets.")
+    st.write("Upload an Excel file with `Threats`, `Consequences`, and optionally `Info` sheets.")
 
     excel_file = st.file_uploader("Upload Excel File", type=["xlsx"], key="excel_uploader")
     if excel_file:
