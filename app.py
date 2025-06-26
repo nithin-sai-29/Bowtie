@@ -1,4 +1,6 @@
 import os
+import matplotlib.pyplot as plt
+import io
 os.environ["STREAMLIT_WATCHDOG_TYPE"] = "poll"
 import streamlit as st
 import pandas as pd
@@ -487,3 +489,21 @@ with tab4:
     # Use the redraw state to change the key and force a redraw of the diagram
     unique_key = f"mermaid_{st.session_state.get('redraw', False)}"
     stmd.st_mermaid(mermaid_code, key=unique_key)
+    
+    if st.button("Generate Downloadable Bowtie (Matplotlib)"):
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.axis("off")
+    ax.text(0.5, 0.5, "Bowtie Diagram Export\n(from Excel or Agent Input)", 
+            fontsize=18, ha="center", va="center", wrap=True)
+
+    pdf_buffer = io.BytesIO()
+    fig.savefig(pdf_buffer, format="pdf")
+    pdf_buffer.seek(0)
+
+    st.download_button(
+        label="📄 Download Bowtie PDF",
+        data=pdf_buffer,
+        file_name="bowtie_diagram.pdf",
+        mime="application/pdf"
+    )
+
