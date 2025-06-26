@@ -133,80 +133,75 @@ with tab1:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
 with tab2:
-    ...
     st.header(":material/analytics: Bowtie Data")
     st.divider()
     st.subheader(":material/upload: Import from Excel")
-st.write("Alternatively, upload an Excel file with `Threats` and `Consequences` sheets.")
+    st.write("Alternatively, upload an Excel file with `Threats`, `Consequences`, and optionally `Info` sheets.")
 
-excel_file = st.file_uploader("Upload Excel File", type=["xlsx"], key="excel_uploader")
-if excel_file:
-    try:
-        df_threats = pd.read_excel(excel_file, sheet_name="Threats")
-        df_conseq = pd.read_excel(excel_file, sheet_name="Consequences")
+    excel_file = st.file_uploader("Upload Excel File", type=["xlsx"], key="excel_uploader")
+    if excel_file:
+        try:
+            df_threats = pd.read_excel(excel_file, sheet_name="Threats")
+            df_conseq = pd.read_excel(excel_file, sheet_name="Consequences")
 
-    try:
-            df_info = pd.read_excel(excel_file, sheet_name="Info", header=None)
-            hazard = str(df_info.iloc[0, 1]) if not pd.isna(df_info.iloc[0, 1]) else "Enter the hazard here"
-            top_event = str(df_info.iloc[1, 1]) if not pd.isna(df_info.iloc[1, 1]) else "Enter the top event here"
+            try:
+                df_info = pd.read_excel(excel_file, sheet_name="Info", header=None)
+                hazard = str(df_info.iloc[0, 1]) if not pd.isna(df_info.iloc[0, 1]) else "Enter the hazard here"
+                top_event = str(df_info.iloc[1, 1]) if not pd.isna(df_info.iloc[1, 1]) else "Enter the top event here"
             except Exception:
                 hazard = st.text_input("Hazard", value="Enter the hazard here", key="excel_hazard")
                 top_event = st.text_input("Top Event", value="Enter the top event here", key="excel_top_event")
 
-
-        threats = [
-            {
-                "threat": str(row["Threat"]),
-                "preventive_barriers": [str(b).strip() for b in str(row["Preventive Barriers"]).split(";") if b.strip()]
-            } for _, row in df_threats.iterrows()
-        ]
-
-        consequences = [
-            {
-                "consequence": str(row["Consequence"]),
-                "mitigative_barriers": [str(b).strip() for b in str(row["Mitigative Barriers"]).split(";") if b.strip()]
-            } for _, row in df_conseq.iterrows()
-        ]
-
-        bowtie_data_from_excel = {
-            "hazard": hazard,
-            "top_events": [
+            threats = [
                 {
-                    "top_event": top_event,
-                    "threats": threats,
-                    "consequences": consequences
-                }
+                    "threat": str(row["Threat"]),
+                    "preventive_barriers": [str(b).strip() for b in str(row["Preventive Barriers"]).split(";") if b.strip()]
+                } for _, row in df_threats.iterrows()
             ]
-        }
 
-        # Save to session
-        st.session_state.bowtie_data = bowtie_data_from_excel
-        st.session_state.diagram_data = bowtie_data_from_excel
+            consequences = [
+                {
+                    "consequence": str(row["Consequence"]),
+                    "mitigative_barriers": [str(b).strip() for b in str(row["Mitigative Barriers"]).split(";") if b.strip()]
+                } for _, row in df_conseq.iterrows()
+            ]
 
-        st.success("✅ Bowtie data successfully imported from Excel.")
-        st.json(bowtie_data_from_excel)
+            bowtie_data_from_excel = {
+                "hazard": hazard,
+                "top_events": [
+                    {
+                        "top_event": top_event,
+                        "threats": threats,
+                        "consequences": consequences
+                    }
+                ]
+            }
 
-    except Exception as e:
-        st.error("❌ Failed to process Excel file.")
-        st.code(str(e))
+            st.session_state.bowtie_data = bowtie_data_from_excel
+            st.session_state.diagram_data = bowtie_data_from_excel
+
+            st.success("✅ Bowtie data successfully imported from Excel.")
+            st.json(bowtie_data_from_excel)
+
+        except Exception as e:
+            st.error("❌ Failed to process Excel file.")
+            st.code(str(e))
 
     st.divider()
     st.subheader(":material/save: Import Bowtie Data")
-    # Allow user to upload and use a JSON file of a bowtie data dictionary
     st.write("You may upload a JSON file containing bowtie data to use in this app instead of using the chat agent.")
     uploaded_file = st.file_uploader(label=":material/upload: Upload Bowtie JSON", type="json")
     if uploaded_file is not None:
         try:
-            # Read and parse the uploaded JSON file
             uploaded_data = json.load(uploaded_file)
             st.session_state.bowtie_data = uploaded_data
             st.success("✅ bowtie_data has been successfully loaded from the uploaded file.")
         except Exception as e:
             st.error(f"❌ Failed to load JSON: {e}")
+
     st.divider()
-    # Check if the session state contains bowtie_data and is a dictionary, either from the chat agent or uploaded file
+
     if st.session_state.bowtie_data is not None and isinstance(st.session_state.bowtie_data, dict):        
-        # Allow user to download and save the dictionary as a JSON file
         st.subheader(":material/save: Export Bowtie Data")
         st.write("You can save the bowtie data to a JSON file for later use.")
         st.download_button(
@@ -215,19 +210,13 @@ if excel_file:
             file_name='bowtie_data.json',
             mime='application/json',
             icon=":material/download:",
-            on_click="ignore"
-            )   
+        )   
         st.divider()
-        # Display the dictionary
         st.subheader(":material/data_object: Parsed Bowtie Data")
         st.json(st.session_state.bowtie_data, expanded=True)
         st.divider()
     else:
         st.warning("The response did not contain the expected bowtie_data dictionary. Please try again.")
-    ...
-
-    
-    
 
 with tab3:
     #####################################################################################################################
