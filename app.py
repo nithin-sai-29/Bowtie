@@ -135,7 +135,7 @@ with tab1:
 with tab2:
     st.header(":material/analytics: Bowtie Data")
     st.divider()
-    st.subheader(":material/upload: Import from Excel")
+    st.subheader(":material/upload: Import From Excel")
     st.write("Alternatively, upload an Excel file with `Threats`, `Consequences`, and optionally `Info` sheets.")
 
     excel_file = st.file_uploader("Upload Excel File", type=["xlsx"], key="excel_uploader")
@@ -188,7 +188,7 @@ with tab2:
             st.code(str(e))
 
     st.divider()
-    st.subheader(":material/save: Import Bowtie Data")
+    st.subheader(":material/save: Import from Json")
     st.write("You may upload a JSON file containing bowtie data to use in this app instead of using the chat agent.")
     uploaded_file = st.file_uploader(label=":material/upload: Upload Bowtie JSON", type="json")
     if uploaded_file is not None:
