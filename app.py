@@ -34,7 +34,7 @@ if "diagram_data" not in st.session_state:
 # Dashboard title
 st.title("Bowtie Builder")
 
-tab1, tab2, tab3, tab4 = st.tabs(["Agent", "Data", "Inputs", "Diagram"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Agent", "Data", "Inputs", "Diagram","PDF"])
 with tab1:
     # Define the bowtie process description and prompt to control the chatbot's behavior
     bowtie_process_description = """
