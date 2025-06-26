@@ -507,3 +507,105 @@ with tab4:
             mime="application/pdf"
         )
 
+with tab5:
+    import streamlit as st
+    import networkx as nx
+    import matplotlib.pyplot as plt
+    import io
+    import streamlit_mermaid as stmd
+    
+    st.header("Bowtie Diagram - Choose Visualization")
+    
+    # Option selection
+    viz_option = st.radio("Select Diagram Type", ["Mermaid.js", "Matplotlib"])
+    
+    # Example fallback data structure
+    diagram_data = st.session_state.get("diagram_data", {
+        "hazard": "Flammable gas",
+        "top_events": [
+            {
+                "top_event": "Gas leak",
+                "threats": [
+                    {"threat": "Corroded pipe", "preventive_barriers": ["Regular inspection", "Pipe coating"]},
+                    {"threat": "Valve failure", "preventive_barriers": ["Maintenance schedule"]}
+                ],
+                "consequences": [
+                    {"consequence": "Fire", "mitigative_barriers": ["Fire suppression system", "Emergency shutdown"]},
+                    {"consequence": "Injury", "mitigative_barriers": ["Evacuation plan"]}
+                ]
+            }
+        ]
+    })
+    
+    if viz_option == "Mermaid.js":
+        def wrap_text(text, num_words):
+            words = text.split()
+            return "<br>".join([" ".join(words[i:i+num_words]) for i in range(0, len(words), num_words)])
+    
+        words_per_line = st.number_input("Words per Line", min_value=1, max_value=10, value=3)
+    
+        mermaid_code = "flowchart LR\n"
+        mermaid_code += f"H([{wrap_text(diagram_data['hazard'], words_per_line)}])\n"
+        te = diagram_data["top_events"][0]["top_event"]
+        mermaid_code += f"H --> TE[{wrap_text(te, words_per_line)}]\n"
+    
+        for t in diagram_data["top_events"][0]["threats"]:
+            threat = wrap_text(t["threat"], words_per_line)
+            for b in t["preventive_barriers"]:
+                pb = wrap_text(b, words_per_line)
+                mermaid_code += f"{pb} --> {threat}\n"
+            mermaid_code += f"{threat} --> TE\n"
+    
+        for c in diagram_data["top_events"][0]["consequences"]:
+            cons = wrap_text(c["consequence"], words_per_line)
+            mermaid_code += f"TE --> {cons}\n"
+            for b in c["mitigative_barriers"]:
+                mb = wrap_text(b, words_per_line)
+                mermaid_code += f"{cons} --> {mb}\n"
+    
+        stmd.st_mermaid(mermaid_code)
+    
+    else:
+        G = nx.DiGraph()
+        labels = {}
+    
+        hazard = diagram_data["hazard"]
+        top_event = diagram_data["top_events"][0]["top_event"]
+        G.add_edge(hazard, top_event)
+        labels[hazard] = hazard
+        labels[top_event] = top_event
+    
+        for threat_obj in diagram_data["top_events"][0]["threats"]:
+            threat = threat_obj["threat"]
+            G.add_edge(threat, top_event)
+            labels[threat] = threat
+            for pb in threat_obj["preventive_barriers"]:
+                G.add_edge(pb, threat)
+                labels[pb] = pb
+    
+        for cons_obj in diagram_data["top_events"][0]["consequences"]:
+            cons = cons_obj["consequence"]
+            G.add_edge(top_event, cons)
+            labels[cons] = cons
+            for mb in cons_obj["mitigative_barriers"]:
+                G.add_edge(cons, mb)
+                labels[mb] = mb
+    
+        fig, ax = plt.subplots(figsize=(14, 8))
+        pos = nx.spring_layout(G, seed=42)
+        nx.draw(G, pos, with_labels=True, labels=labels,
+                node_size=3000, node_color="lightblue", font_size=9,
+                font_weight='bold', edge_color='gray', ax=ax)
+        st.pyplot(fig)
+    
+        # PDF download
+        pdf_buffer = io.BytesIO()
+        fig.savefig(pdf_buffer, format="pdf", bbox_inches="tight")
+        pdf_buffer.seek(0)
+    
+        st.download_button(
+            label="📄 Download Matplotlib Diagram as PDF",
+            data=pdf_buffer,
+            file_name="bowtie_diagram.pdf",
+            mime="application/pdf"
+        )
