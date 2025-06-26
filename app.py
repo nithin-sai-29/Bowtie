@@ -1,6 +1,7 @@
 import os
 os.environ["STREAMLIT_WATCHDOG_TYPE"] = "poll"
 import streamlit as st
+import pandas as pd
 from openai import OpenAI
 import ast
 import json
