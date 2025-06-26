@@ -31,7 +31,7 @@ if "diagram_data" not in st.session_state:
 # Dashboard title
 st.title("Bowtie Builder")
 
-tab1, tab2, tab3, tab4 = st.tabs(["Agent", "Data", "Inputs", "Diagram"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Agent", "Data", "Inputs", "Diagram", "Excel Upload"])
 
 with tab1:
     # Define the bowtie process description and prompt to control the chatbot's behavior
@@ -430,6 +430,55 @@ with tab4:
             mermaid_code += f'''
                 MB{i+1}{j+1}{k+1} --- C{i+1}{j+1}
             '''
+with tab5:
+    st.header(":material/upload: Upload Excel File to Generate Bowtie Diagram")
+    st.markdown("Please upload an Excel file with two sheets: `Threats` and `Consequences`.")
+
+    excel_file = st.file_uploader("Upload Excel File", type=["xlsx"])
+
+    if excel_file:
+        try:
+            df_threats = pd.read_excel(excel_file, sheet_name="Threats")
+            df_conseq = pd.read_excel(excel_file, sheet_name="Consequences")
+
+            # Get hazard and top event from optional columns, or ask user
+            hazard = st.text_input("Hazard", value="Enter the hazard here")
+            top_event = st.text_input("Top Event", value="Enter the top event here")
+
+            threats = []
+            for i, row in df_threats.iterrows():
+                threats.append({
+                    "threat": str(row["Threat"]),
+                    "preventive_barriers": [str(b).strip() for b in str(row["Preventive Barriers"]).split(";") if b.strip()]
+                })
+
+            consequences = []
+            for i, row in df_conseq.iterrows():
+                consequences.append({
+                    "consequence": str(row["Consequence"]),
+                    "mitigative_barriers": [str(b).strip() for b in str(row["Mitigative Barriers"]).split(";") if b.strip()]
+                })
+
+            bowtie_data_from_excel = {
+                "hazard": hazard,
+                "top_events": [
+                    {
+                        "top_event": top_event,
+                        "threats": threats,
+                        "consequences": consequences
+                    }
+                ]
+            }
+
+            st.session_state.bowtie_data = bowtie_data_from_excel
+            st.success("\u2705 bowtie_data loaded from Excel and stored in session.")
+
+            st.subheader("Parsed Bowtie Data")
+            st.json(bowtie_data_from_excel)
+
+        except Exception as e:
+            st.error("\u274C Failed to process the Excel file.")
+            st.code(str(e))
 
     mermaid_code = mermaid_code.strip() # strip any leading or trailing whitespace to ensure the mermaid code is clean to improve change of successful rendering
 
