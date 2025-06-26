@@ -33,7 +33,6 @@ if "diagram_data" not in st.session_state:
 st.title("Bowtie Builder")
 
 tab1, tab2, tab3, tab4 = st.tabs(["Agent", "Data", "Inputs", "Diagram"])
-
 with tab1:
     # Define the bowtie process description and prompt to control the chatbot's behavior
     bowtie_process_description = """
@@ -133,7 +132,6 @@ with tab1:
             for message in reversed(st.session_state.messages):
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
-
 with tab2:
     ...
     st.header(":material/analytics: Bowtie Data")
@@ -147,9 +145,14 @@ if excel_file:
         df_threats = pd.read_excel(excel_file, sheet_name="Threats")
         df_conseq = pd.read_excel(excel_file, sheet_name="Consequences")
 
-        # Prompt user for hazard and top event
-        hazard = st.text_input("Hazard", value="Enter the hazard here", key="excel_hazard")
-        top_event = st.text_input("Top Event", value="Enter the top event here", key="excel_top_event")
+       try:
+            df_info = pd.read_excel(excel_file, sheet_name="Info", header=None)
+            hazard = str(df_info.iloc[0, 1]) if not pd.isna(df_info.iloc[0, 1]) else "Enter the hazard here"
+            top_event = str(df_info.iloc[1, 1]) if not pd.isna(df_info.iloc[1, 1]) else "Enter the top event here"
+        except Exception:
+            hazard = st.text_input("Hazard", value="Enter the hazard here", key="excel_hazard")
+            top_event = st.text_input("Top Event", value="Enter the top event here", key="excel_top_event")
+
 
         threats = [
             {
