@@ -134,6 +134,7 @@ with tab1:
                     st.markdown(message["content"])
 
 with tab2:
+    ...
     st.header(":material/analytics: Bowtie Data")
     st.divider()
     st.subheader(":material/upload: Import from Excel")
@@ -219,6 +220,10 @@ if excel_file:
         st.divider()
     else:
         st.warning("The response did not contain the expected bowtie_data dictionary. Please try again.")
+    ...
+
+    
+    
 
 with tab3:
     #####################################################################################################################
