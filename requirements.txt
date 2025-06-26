@@ -3,3 +3,4 @@ streamlit-mermaid
 openai
 pandas
 openpyxl
+matplotlib
